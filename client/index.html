@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+<head>
+    <meta charset="UTF-8">
+    <title>Algo Timer</title>
+    <link rel='stylesheet' href='static/css/index.css'>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet">
+    <script type="text/javascript" src="angular/angular.min.js"></script>
+    <script type="text/javascript" src="angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="humanize-duration/humanize-duration.js"></script>
+    <script type="text/javascript" src="moment/moment.js"></script>
+    <script type="text/javascript" src="angular-timer/dist/angular-timer.min.js"></script>
+    <script>
+        // Create Angular App
+        var app = angular.module("myApp", ['timer']);
+
+        // Configure Angular Routes
+        // app.config(function($routeProvider) {
+        //     $routeProvider
+        //         .when('/',{
+        //             templateUrl: 'static/partials/loginReg.html',
+        //             controller:'loginController'
+        //         })
+        //         .when('/wall', {
+        //             templateUrl: 'static/partials/wall.html',
+        //             controller: 'wallController'
+        //         })
+        //         .otherwise({
+        //             redirectTo: '/'
+        //         })
+        // });
+    </script>
+    <script type="text/javascript" src="static/js/factories.js"></script>
+    <script type="text/javascript" src="static/js/controllers.js"></script>
+
+    <style>
+      button:focus {
+        outline:0;
+        background-color: white;
+        color: rgba(69,217,217,1);
+      }
+      textarea:focus {
+        outline:0;
+        /*background-color: white;
+        color: rgba(69,217,217,1);*/
+      }
+      body{
+        font-family: 'Quicksand', sans-serif;
+      }
+      .all {
+        text-align: center;
+      }
+      .digits{
+        font-size: 10em;
+        /*color: rgba(69,217,217,1);*/
+        position: relative;
+        top: -100px;
+
+
+        background: -webkit-linear-gradient(rgba(69,217,217,1), rgba(43,255,184,1));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .title-text{
+        color: white;
+      }
+      .header{
+        text-align: center;
+        width: 100%;
+        min-height: 70px;
+        padding: 20px 0 50px 0;
+
+
+        background: -moz-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* ff3.6+ */
+        background: -webkit-gradient(linear, left bottom, right top, color-stop(0%, rgba(69,217,217,1)), color-stop(100%, rgba(43,255,184,1))) !important; /* safari4+,chrome */
+        background: -webkit-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* safari5.1+,chrome10+ */
+        background: -o-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* opera 11.10+ */
+        background: -ms-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* ie10+ */
+        background: linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* w3c */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2BFFB8', endColorstr='#45D9D9',GradientType=1 ); /* ie6-9 */
+      }
+      .btn{
+        background-color: transparent;
+        height: 50px;
+        width: 200px;
+        border-radius: 25px;
+        border: none;
+        font-size: 1.0em;
+        color: white;
+        border: 5px solid white;
+        padding-top: 3px;
+
+        -moz-transition: width 0.15s, font-size 0.15s, -moz-transform ease-out 0.25s;
+        -webkit-transition: width 0.15s, font-size 0.15s, -moz-transform ease-out 0.25s;
+        -o-transition: width 0.15s, font-size 0.15s, -moz-transform ease-out 0.25s;
+        transition: width 0.15s, font-size 0.15s, -moz-transform ease-out 0.25s;
+      }
+      .btn:hover{
+        cursor: pointer;
+        /*background-color: white;
+        color: #0F9E5E;*/
+        width: 250px;
+        font-size: 1.2em;
+      }
+      .times{
+        position: absolute;
+        /*outline: 1px dotted red;*/
+        min-width: 150px;
+        height: 500px;
+        padding: 0 5px;
+        text-align: center;
+        top: 220px;
+        left: 9px;
+        /*background-color: #E4E7ED;*/
+        background: -moz-linear-gradient(45deg, rgba(43,255,184,1) 0%, rgba(69,217,217,1) 100%) !important; /* ff3.6+ */
+        background: -webkit-gradient(linear, left bottom, right top, color-stop(0%, rgba(69,217,217,1)), color-stop(100%, rgba(43,255,184,1))) !important; /* safari4+,chrome */
+        background: -webkit-linear-gradient(45deg, rgba(43,255,184,1) 0%, rgba(69,217,217,1) 100%) !important; /* safari5.1+,chrome10+ */
+        background: -o-linear-gradient(45deg, rgba(43,255,184,1) 0%, rgba(69,217,217,1) 100%) !important; /* opera 11.10+ */
+        background: -ms-linear-gradient(45deg, rgba(43,255,184,1) 0%, rgba(69,217,217,1) 100%) !important; /* ie10+ */
+        background: linear-gradient(45deg, rgba(43,255,184,1) 0%, rgba(69,217,217,1) 100%) !important; /* w3c */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2BFFB8', endColorstr='#45D9D9',GradientType=1 ); /* ie6-9 */
+      }
+      .each-time p{
+        font-size: 0.8em;
+        color: white;
+      }
+      .each-time p span{
+        color: rgba(0,0,0,0.2);
+        /*background: -webkit-linear-gradient(#fc8747, #f7283b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;*/
+        font-size: 1.8em;
+      }
+      .stats{
+        position: absolute;
+        /*outline: 1px dotted red;*/
+        width: 150px;
+        height: 500px;
+        padding: 0 5px;
+        text-align: center;
+        top: 220px;
+        right: 9px;
+        /*background-color: #E4E7ED;*/
+        background: -moz-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* ff3.6+ */
+        background: -webkit-gradient(linear, left bottom, right top, color-stop(0%, rgba(69,217,217,1)), color-stop(100%, rgba(43,255,184,1))) !important; /* safari4+,chrome */
+        background: -webkit-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* safari5.1+,chrome10+ */
+        background: -o-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* opera 11.10+ */
+        background: -ms-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* ie10+ */
+        background: linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* w3c */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2BFFB8', endColorstr='#45D9D9',GradientType=1 ); /* ie6-9 */
+      }
+      .stats-title{
+        font-size: 0.8em;
+        color: white;
+      }
+      .stats-data{
+        /*color: #7A8BEB;*/
+        color: rgba(0,0,0,0.2);
+        /*background: -webkit-linear-gradient(#fc8747, #f7283b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;*/
+        font-size: 2.8em;
+      }
+      .stats-data span{
+        font-size: 0.4em;
+        margin-left: 5px;
+        color: white;
+      }
+
+      .average{
+        /*outline: 1px dotted red;*/
+      }
+
+
+      .final-R{
+        /*background-color: #0F9E5E !important;*/
+        color: white !important;
+        background: -moz-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* ff3.6+ */
+        background: -webkit-gradient(linear, left bottom, right top, color-stop(0%, rgba(69,217,217,1)), color-stop(100%, rgba(43,255,184,1))) !important; /* safari4+,chrome */
+        background: -webkit-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* safari5.1+,chrome10+ */
+        background: -o-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* opera 11.10+ */
+        background: -ms-linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* ie10+ */
+        background: linear-gradient(45deg, rgba(69,217,217,1) 0%, rgba(43,255,184,1) 100%) !important; /* w3c */
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#2BFFB8', endColorstr='#45D9D9',GradientType=1 ); /* ie6-9 */
+
+        animation: final-R 0.25s ease-in-out 1 forwards;
+        -webkit-animation: final-R 0.25s ease-in-out 1 forwards;
+        -moz-animation: final-R 0.25s ease-in-out 1 forwards;
+        -o-animation: final-R 0.25s ease-in-out 1 forwards;
+      }
+
+      @keyframes final-R {
+        0% {
+            /*right: 9px;*/
+            font-size: 1em;
+            width: 150px;
+        }
+        100% {
+            /*right: calc(50% - 165px);*/
+            width: calc(100% - 197px);
+            font-size: 2em;
+        }
+      }
+
+
+      .final-text-ave{
+        /*color: white !important;*/
+        color: rgba(0,0,0,0.2);
+        font-size: 8em;
+        position: relative;
+        top: -230px;
+
+        -moz-transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+        -webkit-transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+        -o-transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+        transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+      }
+      .final-text-ave span{
+        color: white !important;
+        position: relative;
+        /*top: -200px;*/
+
+        -moz-transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+        -webkit-transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+        -o-transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+        transition: font-size 0.25s, -moz-transform ease-out 0.25s;
+      }
+      .input-wrapper{
+        /*outline: 1px dotted red;*/
+        width: calc(100% - 358px);
+        height: 280px;
+        position: absolute;
+        bottom: 43px;
+        left: calc(50% - ((100% - 358px)/2));
+
+        background-color: #F0F4F5;
+
+      }
+      .area{
+        width: 90%;
+        height: 80%;
+        background-color: transparent;
+        border: none;
+        position: absolute;
+        top: 10%;
+        left: 5%;
+        font-size: 1em;
+        overflow: auto;
+        color: #525252;
+      }
+
+
+
+
+    </style>
+
+
+</head>
+
+<body ng-controller="loginController">
+    <div class="header">
+      <h1 class="title-text">ALGO TIMER</h1>
+      <button class="btn" ng-click="runCode()">Start Test</button>
+    </div>
+    <div class="all" ng-hide="times.length == 10">
+      <h1 class="digits" ng-show="showTimer"><timer/></h3>
+    </div>
+    <div class="times">
+      <div class="each-time" ng-repeat="time in times track by $index">
+        <p>Run #{{$index + 1}} : <span>{{time}}</span> ms</p>
+      </div>
+    </div>
+
+    <div class="stats" ng-class="{'final-R': times.length == 10}">
+      <div class="average" ng-show="ave">
+        <p class="stats-title">Average Run Time:</p>
+        <p class="stats-data" ng-class="{'final-text-ave': times.length == 10}">{{ave}}<span>ms</span></p>
+      </div>
+    </div>
+
+    <div class="input-wrapper" ng-hide="times.length == 10">
+      <textarea name="name" rows="8" cols="80" class="area" ng-model="inputScript"></textarea>
+    </div>
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- end -->
